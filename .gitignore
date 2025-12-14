@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Logs
+logs/
+*.log
+app.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Test coverage
+.coverage
+.pytest_cache/
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# Misc
+*.pyc
+*.pyo
+*.bak
+*.tmp
+*.pid
+*.pid.lock
+
+# Docker
+Dockerfile
+.dockerignore
