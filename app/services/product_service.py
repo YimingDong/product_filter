@@ -96,3 +96,4 @@ class ProductService:
             "size": pagination.size,
             "pages": pages
         }
+

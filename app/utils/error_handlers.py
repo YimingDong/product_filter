@@ -8,6 +8,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
+
 async def http_exception_handler(request: Request, exc: HTTPException):
     """处理HTTP异常"""
     logger.error(f"HTTP Exception: {exc.status_code} - {exc.detail} - Path: {request.url.path}")

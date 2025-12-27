@@ -1,3 +1,4 @@
+import uvicorn as uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException, RequestValidationError
@@ -12,7 +13,6 @@ from app.utils.error_handlers import (
     general_exception_handler
 )
 import logging
-
 # 创建FastAPI应用实例
 app = FastAPI(
     title=Config.APP_NAME,
@@ -31,6 +31,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    """记录请求信息的中间件"""
+    path = request.url.path
+    method = request.method
+    client_host = request.client.host if request.client else "unknown"
+    
+    response = await call_next(request)
+    
+    status_code = response.status_code
+    logger.info(f"Request: {method} {path} from {client_host} - Status: {status_code}")
+    
+    return response
 
 # 注册API路由
 app.include_router(api_router)
@@ -65,8 +80,7 @@ async def shutdown_event():
     """应用关闭时执行"""
     logger.info(f"Shutting down {Config.APP_NAME}")
 
-if __name__ == "__main__":
-    import uvicorn
+if __name__ == '__main__':
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
