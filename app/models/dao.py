@@ -340,7 +340,7 @@ class CoolingCapacity(Base):
 
 class SCQuant(Base):
     """工况修正系数模型"""
-    __tablename__ = "SC_quant"
+    __tablename__ = "sc_quant"
     __table_args__ = {
         'comment': '工况修正系数'
     }
