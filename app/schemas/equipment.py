@@ -312,7 +312,7 @@ class CoolerBase(BaseModel):
     air_flow_rate: Optional[float] = Field(None, description="风量(m³/h)")
     total_fan_power: Optional[str] = Field(None, max_length=100, description="电机总功率")
     total_fan_current: Optional[str] = Field(None, max_length=100, description="电机总电流")
-    air_flow: Optional[float] = Field(None, description="射程")
+    air_flow: Optional[str] = Field(None, description="射程")
     defrost_water_flow_rate: Optional[float] = Field(None, description="冲霜水量(m³/h)")
     pipe_dia: Optional[str] = Field(None, max_length=100, description="接口管径(进/出Φmm）")
     noise: Optional[float] = Field(None, description="噪音(dB)(5米)")
