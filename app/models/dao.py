@@ -273,7 +273,7 @@ class Cooler(Base):
     air_flow_rate = Column(Float, nullable=True, comment='风量(m³/h)')
     total_fan_power = Column(String(100), nullable=True, comment='电机总功率')
     total_fan_current = Column(String(100), nullable=True, comment='电机总电流')
-    air_flow = Column(Float, nullable=True, comment='射程')
+    air_flow = Column(String(255), nullable=True, comment='射程')
     defrost_water_flow_rate = Column(Float, nullable=True, comment='冲霜水量(m³/h)')
     pipe_dia = Column(String(100), nullable=True, comment='接口管径(进/出Φmm）')
     noise = Column(Float, nullable=True, comment='噪音(dB)(5米)')
