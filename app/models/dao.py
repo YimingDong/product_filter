@@ -317,7 +317,7 @@ class CoolingCapacity(Base):
     }
 
     id = Column(BigInteger, primary_key=True, autoincrement=True, comment='自增主键')
-    cooler_id = Column(BigInteger, nullable=False, comment='冷风机的id')
+    cooler_id = Column(String(255), nullable=False, comment='冷风机的id')
     working_status = Column(String(100), nullable=False, comment='工况：SC1;SC2;SC3;SC4;SC5')
     capacity = Column(Float, nullable=False, comment='制冷量（KW）')
     created_time = Column(DateTime, default=datetime.now, nullable=True, comment='创建时间')

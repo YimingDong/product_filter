@@ -358,7 +358,7 @@ class CoolerResponse(CoolerBase):
 # 冷量映射表模型
 class CoolingCapacityBase(BaseModel):
     """冷量映射表基础模型"""
-    cooler_id: int = Field(..., description="冷风机的id")
+    cooler_id: str = Field(..., description="冷风机的id")
     working_status: str = Field(..., max_length=100, description="工况：SC1;SC2;SC3;SC4;SC5")
     capacity: float = Field(..., description="制冷量（KW）")
 

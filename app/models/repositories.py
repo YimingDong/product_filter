@@ -279,10 +279,10 @@ class CoolerRepository(BaseRepository[Cooler]):
             Cooler.is_deleted == 0
         ).first()
 
-    def get_by_cooler_ids(self, cooler_id: List[int]) -> List[Cooler]:
+    def get_by_cooler_ids(self, cooler_id: List[str]) -> List[Cooler]:
         """根据冷风机ID获取记录"""
         return self.session.query(Cooler).filter(
-            Cooler.id.in_(cooler_id),
+            Cooler.model.in_(cooler_id),
             Cooler.is_deleted == 0
         ).all()
 

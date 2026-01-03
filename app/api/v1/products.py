@@ -159,17 +159,21 @@ def filter_coolers(
 #     fan_distance: float,
 @router.get("/cooler/filter", response_model=BaseResponse[dict])
 def filter_coolers_get(
-
-    db: Session = Depends(get_db)
+        evaporating_temp: float,
+        repo_temp: float,
+        required_cooling_cap: float,
+        refrigerant: str,
+        refrigerant_supply_type: str,
+        db: Session = Depends(get_db)
 ):
     """过滤冷风机（GET请求）"""
     try:
         filter_params = CoolerFilter(
-            evaporating_temp=1,
-            repo_temp=2,
-            required_cooling_cap=3,
-            refrigerant="R404A",
-            refrigerant_supply_type="泵供液",
+            evaporating_temp=evaporating_temp,
+            repo_temp=repo_temp,
+            required_cooling_cap=required_cooling_cap,
+            refrigerant=refrigerant,
+            refrigerant_supply_type=refrigerant_supply_type,
             fan_distance=0
         )
         result = CoolerService.filter_cooler(db, filter_params)

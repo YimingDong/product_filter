@@ -10,8 +10,7 @@ from app.models.repositories import SCQuantRepository, CoolerRepository, Cooling
 from app.schemas.product import ProductCreate, ProductUpdate, ProductFilter, CoolerFilter
 from app.schemas.response import PaginationParams
 from app.utils.enums import SCLevel, Refrigerant
-
-logger = logging.getLogger(__name__)
+from app.utils.logger import logger
 
 
 class CoolerService:
@@ -19,9 +18,10 @@ class CoolerService:
     @staticmethod
     def filter_cooler(db: Session, filter_params: CoolerFilter) -> dict:
         """过滤产品"""
-        logger.debug("aaaa")
+        logger.info("aaaa")
         delta_t = filter_params.repo_temp - filter_params.evaporating_temp
         working_status = SCLevel.get_level_by_value(filter_params.evaporating_temp).value
+        logger.info(f"working status: {working_status}")
         quant_repo = SCQuantRepository(db)
         q_dto = quant_repo.get_by_evaporating_temp_and_delta_t(filter_params.evaporating_temp, delta_t)
         if not q_dto:
@@ -38,6 +38,7 @@ class CoolerService:
         cooler_cap_repo = CoolingCapacityRepository(db)
 
         cooler_cap_dtos = cooler_cap_repo.get_by_working_status(working_status)
+        logger.info(cooler_cap_dtos)
         cooler_ids = []
         allowed_cooler = []
         for cap in cooler_cap_dtos:

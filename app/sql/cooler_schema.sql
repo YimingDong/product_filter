@@ -26,7 +26,7 @@ COMMENT='冷风机';
 
 CREATE TABLE cooling_capacity (
 	id BIGINT UNSIGNED auto_increment NOT NULL COMMENT 'pk',
-	cooler_id BIGINT UNSIGNED NOT NULL COMMENT '冷风机的id',
+	cooler_id varchar(255) NOT NULL COMMENT '冷风机的id',
 	working_status varchar(100) NOT NULL COMMENT '工况：SC1;SC2;SC3;SC4;SC5',
 	capacity FLOAT NOT NULL COMMENT '制冷量（KW）',
 	created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL COMMENT '创建时间',
