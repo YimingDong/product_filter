@@ -4,16 +4,11 @@ from datetime import datetime
 
 # 导入所有模型
 from app.models.dao import (
-    Condenser,
-    PowerSupply,
-    Compressor,
-    Fan,
-    Evaporator,
-    Image,
     Cooler,
     CoolingCapacity,
     SCQuant
 )
+from app.utils.enums import Refrigerant
 
 # 创建泛型类型变量
 ModelType = TypeVar('ModelType')
@@ -107,142 +102,30 @@ class BaseRepository(Generic[ModelType]):
         return query.offset(skip).limit(limit).all()
 
 
-class CondenserRepository(BaseRepository[Condenser]):
-    """冷凝机仓库类"""
-    
-    def __init__(self, session: Session):
-        super().__init__(session, Condenser)
-    
-    def search(self, model_code: Optional[str] = None, min_temperature: Optional[int] = None, 
-               max_temperature: Optional[int] = None, skip: int = 0, limit: int = 100) -> List[Condenser]:
-        """搜索冷凝机，支持型号和温度范围过滤"""
-        query = self.session.query(Condenser).filter(Condenser.is_deleted == 0)
-        
-        if model_code:
-            query = query.filter(Condenser.model_code.like(f"%{model_code}%"))
-        
-        if min_temperature is not None:
-            query = query.filter(Condenser.applicable_temperature >= min_temperature)
-        
-        if max_temperature is not None:
-            query = query.filter(Condenser.applicable_temperature <= max_temperature)
-        
-        return query.offset(skip).limit(limit).all()
-
-
-class PowerSupplyRepository(BaseRepository[PowerSupply]):
-    """电源仓库类"""
-    
-    def __init__(self, session: Session):
-        super().__init__(session, PowerSupply)
-    
-    def search(self, model_code: Optional[str] = None, min_voltage: Optional[float] = None, 
-               max_voltage: Optional[float] = None, skip: int = 0, limit: int = 100) -> List[PowerSupply]:
-        """搜索电源，支持型号和电压范围过滤"""
-        query = self.session.query(PowerSupply).filter(PowerSupply.is_deleted == 0)
-        
-        if model_code:
-            query = query.filter(PowerSupply.model_code.like(f"%{model_code}%"))
-        
-        if min_voltage is not None:
-            query = query.filter(PowerSupply.voltage >= min_voltage)
-        
-        if max_voltage is not None:
-            query = query.filter(PowerSupply.voltage <= max_voltage)
-        
-        return query.offset(skip).limit(limit).all()
-
-
-class CompressorRepository(BaseRepository[Compressor]):
-    """压缩机仓库类"""
-    
-    def __init__(self, session: Session):
-        super().__init__(session, Compressor)
-    
-    def search(self, model_code: Optional[str] = None, min_efficiency: Optional[float] = None, 
-               skip: int = 0, limit: int = 100) -> List[Compressor]:
-        """搜索压缩机，支持型号和效率过滤"""
-        query = self.session.query(Compressor).filter(Compressor.is_deleted == 0)
-        
-        if model_code:
-            query = query.filter(Compressor.model_code.like(f"%{model_code}%"))
-        
-        if min_efficiency is not None:
-            query = query.filter(Compressor.working_efficiency >= min_efficiency)
-        
-        return query.offset(skip).limit(limit).all()
-
-
-class FanRepository(BaseRepository[Fan]):
-    """风机仓库类"""
-    
-    def __init__(self, session: Session):
-        super().__init__(session, Fan)
-    
-    def search(self, name: Optional[str] = None, model_code: Optional[str] = None, 
-               fan_type: Optional[int] = None, skip: int = 0, limit: int = 100) -> List[Fan]:
-        """搜索风机，支持名称、型号和类型过滤"""
-        query = self.session.query(Fan).filter(Fan.is_deleted == 0)
-        
-        if name:
-            query = query.filter(Fan.name.like(f"%{name}%"))
-        
-        if model_code:
-            query = query.filter(Fan.model_code.like(f"%{model_code}%"))
-        
-        if fan_type is not None:
-            query = query.filter(Fan.type == fan_type)
-        
-        return query.offset(skip).limit(limit).all()
-
-
-class EvaporatorRepository(BaseRepository[Evaporator]):
-    """蒸发器仓库类"""
-    
-    def __init__(self, session: Session):
-        super().__init__(session, Evaporator)
-    
-    def search(self, name: Optional[str] = None, model_code: Optional[str] = None, 
-               evaporator_type: Optional[int] = None, skip: int = 0, limit: int = 100) -> List[Evaporator]:
-        """搜索蒸发器，支持名称、型号和类型过滤"""
-        query = self.session.query(Evaporator).filter(Evaporator.is_deleted == 0)
-        
-        if name:
-            query = query.filter(Evaporator.name.like(f"%{name}%"))
-        
-        if model_code:
-            query = query.filter(Evaporator.model_code.like(f"%{model_code}%"))
-        
-        if evaporator_type is not None:
-            query = query.filter(Evaporator.type == evaporator_type)
-        
-        return query.offset(skip).limit(limit).all()
-
-
-class ImageRepository(BaseRepository[Image]):
-    """图片仓库类"""
-    
-    def __init__(self, session: Session):
-        super().__init__(session, Image)
-    
-    def get_by_related_id(self, related_id: str, skip: int = 0, limit: int = 100) -> List[Image]:
-        """根据关联ID获取图片"""
-        return self.search(related_id=related_id, skip=skip, limit=limit)
-    
-    def delete_by_related_id(self, related_id: str) -> bool:
-        """删除指定关联ID的所有图片"""
-        query = self.session.query(Image).filter(
-            Image.related_id == related_id,
-            Image.is_deleted == 0
-        )
-        
-        count = query.update({
-            Image.is_deleted: 1,
-            Image.deleted_at: datetime.now()
-        })
-        
-        self.session.commit()
-        return count > 0
+# class ImageRepository(BaseRepository[Image]):
+#     """图片仓库类"""
+#
+#     def __init__(self, session: Session):
+#         super().__init__(session, Image)
+#
+#     def get_by_related_id(self, related_id: str, skip: int = 0, limit: int = 100) -> List[Image]:
+#         """根据关联ID获取图片"""
+#         return self.search(related_id=related_id, skip=skip, limit=limit)
+#
+#     def delete_by_related_id(self, related_id: str) -> bool:
+#         """删除指定关联ID的所有图片"""
+#         query = self.session.query(Image).filter(
+#             Image.related_id == related_id,
+#             Image.is_deleted == 0
+#         )
+#
+#         count = query.update({
+#             Image.is_deleted: 1,
+#             Image.deleted_at: datetime.now()
+#         })
+#
+#         self.session.commit()
+#         return count > 0
 
 
 class CoolerRepository(BaseRepository[Cooler]):
@@ -302,10 +185,11 @@ class CoolingCapacityRepository(BaseRepository[CoolingCapacity]):
         
         return query.offset(skip).limit(limit).all()
     
-    def get_by_working_status(self, working_status: str) -> List[CoolingCapacity]:
+    def get_by_working_status_and_refrigerant(self, working_status: str, refrigerant: str = Refrigerant.R404A.value) -> List[CoolingCapacity]:
         """根据冷风机ID和工况获取冷量映射记录"""
         return self.session.query(CoolingCapacity).filter(
             CoolingCapacity.working_status == working_status,
+            CoolingCapacity.refrigerant == refrigerant,
             CoolingCapacity.is_deleted == 0
         ).all()
 

@@ -1,14 +1,7 @@
-import logging
-import math
-from typing import List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_
 
-from app.models.dao import Cooler
-from app.models.product import Product, Category
 from app.models.repositories import SCQuantRepository, CoolerRepository, CoolingCapacityRepository
-from app.schemas.product import ProductCreate, ProductUpdate, ProductFilter, CoolerFilter
-from app.schemas.response import PaginationParams
+from app.schemas.product import CoolerFilter
 from app.utils.enums import SCLevel, Refrigerant
 from app.utils.logger import logger
 
@@ -37,7 +30,7 @@ class CoolerService:
         cooler_repo = CoolerRepository(db)
         cooler_cap_repo = CoolingCapacityRepository(db)
 
-        cooler_cap_dtos = cooler_cap_repo.get_by_working_status(working_status)
+        cooler_cap_dtos = cooler_cap_repo.get_by_working_status_and_refrigerant(working_status, filter_params.refrigerant)
         logger.info(cooler_cap_dtos)
         cooler_ids = []
         allowed_cooler = []
@@ -45,8 +38,8 @@ class CoolerService:
             delta = abs(cap.capacity - target_cap)
             allowed_cooler.append((cap.cooler_id, delta))
         sorted_allowed_cooler = sorted(allowed_cooler, key=lambda x: x[1])
-        top3 = [element[0] for element in sorted_allowed_cooler[:3]]
-        coolers = cooler_repo.get_by_cooler_ids(top3)
+        top5 = [element[0] for element in sorted_allowed_cooler[:5]]
+        coolers = cooler_repo.get_by_cooler_ids(top5)
 
         # 计算总数
         total = len(coolers)

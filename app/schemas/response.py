@@ -9,7 +9,7 @@ class BaseResponse(BaseModel, Generic[T]):
     code: int = 200
     message: str = "success"
     data: Optional[T] = None
-    timestamp: datetime = datetime.now()
+    # timestamp: datetime = datetime.now()
 
 class PaginationResponse(BaseModel):
     """分页响应模型"""
