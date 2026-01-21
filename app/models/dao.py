@@ -60,18 +60,20 @@ class Cooler(Base):
     is_deleted = Column(Integer, default=0, nullable=True, comment='逻辑删除')
     comment = Column(String(255), nullable=True, comment='参数注释')
 
-    def to_pydantic(self):
+    def to_pydantic(self, capacity: float, working_status: str):
         """转换为Pydantic模型实例"""
         from app.schemas.equipment import CoolerResponse
         return CoolerResponse(
             id=self.id,
+            cooling_capacity=capacity,
+            working_status=working_status,
             heat_exchange_area=self.heat_exchange_area,
             tube_volumn=self.tube_volumn,
             air_flow_rate=self.air_flow_rate,
             total_fan_power=self.total_fan_power,
             total_fan_current=self.total_fan_current,
             air_flow=self.air_flow,
-            defrost_water_flow_rate=self.defrost_power,
+            defrost_power=self.defrost_power,
             pipe_dia=self.pipe_dia,
             noise=self.noise,
             weight=self.weight,

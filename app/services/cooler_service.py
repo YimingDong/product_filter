@@ -32,11 +32,12 @@ class CoolerService:
 
         cooler_cap_dtos = cooler_cap_repo.get_by_working_status_and_refrigerant(working_status, filter_params.refrigerant)
         logger.info(cooler_cap_dtos)
-        cooler_ids = []
+        cooler_id_cap_map = {}
         allowed_cooler = []
         for cap in cooler_cap_dtos:
             delta = abs(cap.capacity - target_cap)
             allowed_cooler.append((cap.cooler_id, delta))
+            cooler_id_cap_map[cap.cooler_id] = cap
         sorted_allowed_cooler = sorted(allowed_cooler, key=lambda x: x[1])
         top5 = [element[0] for element in sorted_allowed_cooler[:5]]
         coolers = cooler_repo.get_by_cooler_ids(top5)
@@ -52,7 +53,8 @@ class CoolerService:
         # pages = (total + pagination.size - 1) // pagination.size
         print(len(coolers))
         return {
-            "items": [cooler.to_pydantic() for cooler in coolers],
+            "items": [cooler.to_pydantic(cooler_id_cap_map[cooler.model].capacity,
+                                         cooler_id_cap_map[cooler.model].working_status) for cooler in coolers],
             "total": total
         }
 

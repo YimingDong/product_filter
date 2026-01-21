@@ -48,6 +48,8 @@ class CoolerBase(BaseModel):
 class CoolerResponse(CoolerBase):
     """冷风机响应模型"""
     id: int
+    cooling_capacity: float
+    working_status: str
     is_deleted: int
 
     class Config:
