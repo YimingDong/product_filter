@@ -54,6 +54,7 @@ class Cooler(Base):
     weight = Column(Float, nullable=True, comment='重量')
     model = Column(String(100), nullable=True, comment='型号')
     fin_spacing = Column(String(100), nullable=True, comment='翅片间距')
+    fin_spacing_num = Column(Float, nullable=True, comment='翅片间距数字')
     series = Column(String(100), nullable=True, comment='系列')
     create_time = Column(DateTime, default=datetime.now, nullable=False, comment='创建时间')
     update_time = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False, comment='更新时间')
