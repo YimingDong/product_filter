@@ -1,6 +1,7 @@
 import openpyxl
 from datetime import datetime
 import os
+import re
 
 
 def format_sql_value(value):
@@ -22,6 +23,32 @@ def format_sql_value(value):
         return str(value)
     else:
         return f"'{str(value)}'"
+
+
+def extract_fin_spacing_num(fin_spacing):
+    """
+    从fin_spacing字段中提取数字（支持整数和小数）
+    例如：从 "C04=4mm" 中提取 4.0，从 "C04=4.5mm" 中提取 4.5
+    
+    Args:
+        fin_spacing: fin_spacing字段的原始值
+        
+    Returns:
+        提取的float数字，如果无法提取则返回None
+    """
+    if fin_spacing is None or fin_spacing == '':
+        return None
+    
+    # 使用正则表达式匹配等号后的数字（支持整数和小数，例如：C04=4mm 或 C04=4.5mm）
+    match = re.search(r'=(\d+\.?\d*)', str(fin_spacing))
+    if match:
+        try:
+            # 转换为float类型，确保SQL中输出为数字值而不是字符串
+            return float(match.group(1))
+        except ValueError:
+            return None
+    
+    return None
 
 
 def generate_cooling_capacity_insert(sheet, col_idx, refrigerant):
@@ -103,6 +130,9 @@ def generate_cooler_insert(sheet, col_idx):
     comment = sheet.cell(19, col_idx).value
     fin_spacing = sheet.cell(20, col_idx).value
     
+    # 从fin_spacing中提取数字到fan_spacing_num
+    fan_spacing_num = extract_fin_spacing_num(fin_spacing)
+    
     model_sql = format_sql_value(model)
     heat_exchange_area_sql = format_sql_value(heat_exchange_area)
     tube_volumn_sql = format_sql_value(tube_volumn)
@@ -115,17 +145,18 @@ def generate_cooler_insert(sheet, col_idx):
     noise_sql = format_sql_value(noise)
     weight_sql = format_sql_value(weight)
     fin_spacing_sql = format_sql_value(fin_spacing)
+    fan_spacing_num_sql = format_sql_value(fan_spacing_num)
     series_sql = format_sql_value(series)
     comment_sql = format_sql_value(comment)
     
     insert_statement = (
         f"INSERT INTO cooler (model, heat_exchange_area, tube_volumn, air_flow_rate, "
         f"total_fan_power, total_fan_current, air_flow, defrost_power, "
-        f"pipe_dia, noise, weight, fin_spacing, series, comment, "
+        f"pipe_dia, noise, weight, fin_spacing, fan_spacing_num, series, comment, "
         f"create_time, update_time, is_deleted) "
         f"VALUES ({model_sql}, {heat_exchange_area_sql}, {tube_volumn_sql}, {air_flow_rate_sql}, "
         f"{total_fan_power_sql}, {total_fan_current_sql}, {air_flow_sql}, {defrost_power_sql}, "
-        f"{pipe_dia_sql}, {noise_sql}, {weight_sql}, {fin_spacing_sql}, "
+        f"{pipe_dia_sql}, {noise_sql}, {weight_sql}, {fin_spacing_sql}, {fan_spacing_num_sql}, "
         f"{series_sql}, {comment_sql}, NOW(), NOW(), 0);"
     )
     
