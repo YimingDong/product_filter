@@ -152,7 +152,7 @@ def generate_cooler_insert(sheet, col_idx):
     insert_statement = (
         f"INSERT INTO cooler (model, heat_exchange_area, tube_volumn, air_flow_rate, "
         f"total_fan_power, total_fan_current, air_flow, defrost_power, "
-        f"pipe_dia, noise, weight, fin_spacing, fan_spacing_num, series, comment, "
+        f"pipe_dia, noise, weight, fin_spacing, fin_spacing_num, series, comment, "
         f"create_time, update_time, is_deleted) "
         f"VALUES ({model_sql}, {heat_exchange_area_sql}, {tube_volumn_sql}, {air_flow_rate_sql}, "
         f"{total_fan_power_sql}, {total_fan_current_sql}, {air_flow_sql}, {defrost_power_sql}, "
@@ -222,7 +222,7 @@ def generate_sql_from_excel(excel_file_path, cooling_capacity_output_path, coole
 
 
 def main():
-    excel_file = "冷风机数据.xlsx"
+    excel_file = "mjl63.xlsx"
     cooling_capacity_output_file = "app/sql/cooling_capacity.sql"
     cooler_output_file = "app/sql/cooler.sql"
     
