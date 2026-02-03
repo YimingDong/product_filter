@@ -40,7 +40,7 @@ class CoolerService:
             cooler_id_cap_map[cap.cooler_id] = cap
         sorted_allowed_cooler = sorted(allowed_cooler, key=lambda x: x[1])
         top6 = [element[0] for element in sorted_allowed_cooler[:6]]
-        coolers = cooler_repo.get_by_cooler_ids(top6)
+        coolers = cooler_repo.get_by_cooler_ids(top6)[:6]
         if filter_params.fan_distance:
             coolers = [cooler for cooler in coolers if cooler.fin_spacing_num == filter_params.fan_distance]
 
