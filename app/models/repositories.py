@@ -185,11 +185,11 @@ class CoolingCapacityRepository(BaseRepository[CoolingCapacity]):
         
         return query.offset(skip).limit(limit).all()
     
-    def get_by_working_status_and_refrigerant(self, working_status: str, refrigerant: str = Refrigerant.R404A.value) -> List[CoolingCapacity]:
+    def get_by_working_status_and_refrigerant(self, working_status: str) -> List[CoolingCapacity]:
         """根据冷风机ID和工况获取冷量映射记录"""
         return self.session.query(CoolingCapacity).filter(
             CoolingCapacity.working_status == working_status,
-            CoolingCapacity.refrigerant == refrigerant,
+            # CoolingCapacity.refrigerant == refrigerant,
             CoolingCapacity.is_deleted == 0
         ).all()
 

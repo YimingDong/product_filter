@@ -34,7 +34,7 @@ class CoolerService:
         cooler_repo = CoolerRepository(db)
         cooler_cap_repo = CoolingCapacityRepository(db)
 
-        cooler_cap_dtos = cooler_cap_repo.get_by_working_status_and_refrigerant(working_status, filter_params.refrigerant)
+        cooler_cap_dtos = cooler_cap_repo.get_by_working_status_and_refrigerant(working_status)
         logger.info(cooler_cap_dtos)
         cooler_id_cap_map = {}
         allowed_cooler = []
