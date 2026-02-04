@@ -18,15 +18,12 @@ def filter_coolers(
     db: Session = Depends(get_db)
 ):
     """过滤产品"""
-    try:
-        result = CoolerService.filter_cooler(db, filter_params)
-        return BaseResponse(
-            message="Products filtered successfully",
-            data=result
-        )
-    except Exception as e:
-        logger.error(f"Error filtering products: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+
+    result = CoolerService.filter_cooler(db, filter_params)
+    return BaseResponse(
+        message="Products filtered successfully",
+        data=result
+    )
 
 # http://localhost:8080/api/v1/products/cooler/filter/-30/-25/150/R404A/direct/4.5
 # evaporating_temp: float,

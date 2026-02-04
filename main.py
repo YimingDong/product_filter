@@ -10,7 +10,7 @@ from app.utils.error_handlers import (
     http_exception_handler,
     request_validation_exception_handler,
     sqlalchemy_exception_handler,
-    general_exception_handler
+    general_exception_handler, FilterException, filter_exception_handler
 )
 import logging
 # 创建FastAPI应用实例
@@ -54,6 +54,7 @@ app.include_router(api_router)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
 app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+app.add_exception_handler(FilterException, filter_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
 # 健康检查端点

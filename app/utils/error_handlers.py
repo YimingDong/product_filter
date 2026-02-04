@@ -9,6 +9,13 @@ import traceback
 logger = logging.getLogger(__name__)
 
 
+class FilterException(Exception):
+    def __init__(self, message: str = None, code: int = None):
+        self.message = message
+        self.code = code
+        super().__init__(message)
+
+
 async def http_exception_handler(request: Request, exc: HTTPException):
     """处理HTTP异常"""
     logger.error(f"HTTP Exception: {exc.status_code} - {exc.detail} - Path: {request.url.path}")
@@ -50,6 +57,20 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
         content=BaseResponse(
             code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message="Database operation failed"
+        ).dict()
+    )
+
+
+async def filter_exception_handler(request: Request, exc: FilterException):
+    """处理一般异常"""
+    logger.error(f"FilterException Error: {str(exc)} - Path: {request.url.path}")
+    logger.error(traceback.format_exc())
+
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=BaseResponse(
+            code=exc.code,
+            message=exc.message
         ).dict()
     )
 
