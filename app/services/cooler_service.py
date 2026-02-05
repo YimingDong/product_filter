@@ -15,7 +15,7 @@ class CoolerService:
     def filter_cooler(db: Session, filter_params: CoolerFilter) -> dict:
         """过滤产品"""
         logger.info("aaaa")
-        delta_t = filter_params.repo_temp - filter_params.evaporating_temp
+        delta_t = abs(filter_params.repo_temp - filter_params.evaporating_temp)
         working_status = SCLevel.get_level_by_value(filter_params.evaporating_temp).value
         logger.info(f"working status: {working_status}")
         quant_repo = SCQuantRepository(db)
