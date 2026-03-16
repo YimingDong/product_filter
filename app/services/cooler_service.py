@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from typing import List
 
 from app.models.repositories import SCQuantRepository, CoolerRepository, CoolingCapacityRepository
 from app.schemas.product import CoolerFilter
@@ -22,7 +23,7 @@ class CoolerService:
         q_dto = quant_repo.get_by_evaporating_temp_and_delta_t(filter_params.evaporating_temp, delta_t)
         if not q_dto:
             logger.debug(f"can't find target quant evap_temp: {filter_params.evaporating_temp}, delta_t: {delta_t}")
-            raise FilterException(code=500, message="温度过高或过低，请直接联系厂家")
+            raise FilterException(code=500, message="温差过高或过低，请直接联系厂家")
             # q = SCLevel.get_q(filter_params.evaporating_temp, filter_params.refrigerant_supply_type)
         else:
             q = q_dto.quant
@@ -52,7 +53,7 @@ class CoolerService:
             if cooler.model not in cooler_dic:
                 cooler_dic[cooler.model] = []
             cooler_dic[cooler.model].append(cooler)
-        res = get_data(target_ids, cooler_dic, filter_params.fan_distance)
+        res = get_data(target_ids, cooler_dic, filter_params.fan_distance, filter_params.series)
 
         # 计算总数
         total = len(res)
@@ -69,9 +70,22 @@ class CoolerService:
                                          cooler_id_cap_map[cooler.model].working_status) for cooler in res],
             "total": total
         }
+    
+    @staticmethod
+    def get_all_series(db: Session) -> List[str]:
+        """获取所有冷风机系列，去重并按字母顺序排序"""
+        try:
+            cooler_repo = CoolerRepository(db)
+            series_list = cooler_repo.get_all_series()
+            # 按字母顺序排序
+            series_list.sort()
+            return series_list
+        except Exception as e:
+            logger.error(f"Error getting all series: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
 
-def get_data(target_ids: list[str], cooler_dic: dict, fan_distance: float):
+def get_data(target_ids: list[str], cooler_dic: dict, fan_distance: float, series: str = None):
     res = []
     for target_id in target_ids:
 
@@ -80,6 +94,8 @@ def get_data(target_ids: list[str], cooler_dic: dict, fan_distance: float):
         coolers = cooler_dic[target_id]
         for cooler in coolers:
             if fan_distance and cooler.fin_spacing_num != fan_distance:
+                continue
+            if series and cooler.series != series:
                 continue
             if len(res) > 5:
                 return res

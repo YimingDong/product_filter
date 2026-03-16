@@ -12,6 +12,7 @@ class CoolerFilter(BaseModel):
     refrigerant: Optional[str] = Field(Refrigerant.R404A.value, description="制冷剂")
     refrigerant_supply_type: Optional[str] = Field(RefrigerantSupplyType.DIRECT.value, description="制冷剂类型")
     fan_distance: Optional[float] = Field(None, description="片距")
+    series: Optional[str] = Field(None, description="冷风机系列")
 
     @model_validator(mode='before')
     @classmethod

@@ -32,6 +32,7 @@ def filter_coolers(
 #     refrigerant: str,
 #     refrigerant_supply_type: str,
 #     fan_distance: float,
+#     series: Optional[str] = None,
 @router.get("/cooler/filter", response_model=BaseResponse[dict])
 def filter_coolers_get(
         evaporating_temp: float,
@@ -39,6 +40,7 @@ def filter_coolers_get(
         required_cooling_cap: float,
         refrigerant: str,
         refrigerant_supply_type: str,
+        series: Optional[str] = None,
         db: Session = Depends(get_db)
 ):
     """过滤冷风机（GET请求）"""
@@ -49,7 +51,8 @@ def filter_coolers_get(
             required_cooling_cap=required_cooling_cap,
             refrigerant=refrigerant,
             refrigerant_supply_type=refrigerant_supply_type,
-            fan_distance=0
+            fan_distance=0,
+            series=series
         )
         result = CoolerService.filter_cooler(db, filter_params)
         return BaseResponse(
@@ -58,4 +61,23 @@ def filter_coolers_get(
         )
     except Exception as e:
         logger.error(f"Error filtering coolers: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/cooler/series", response_model=BaseResponse[dict])
+def get_cooler_series(
+    db: Session = Depends(get_db)
+):
+    """获取所有冷风机系列"""
+    try:
+        series_list = CoolerService.get_all_series(db)
+        return BaseResponse(
+            message="Cooler series retrieved successfully",
+            data={
+                "series": series_list,
+                "total": len(series_list)
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error getting cooler series: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

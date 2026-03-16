@@ -168,6 +168,16 @@ class CoolerRepository(BaseRepository[Cooler]):
             Cooler.model.in_(cooler_id),
             Cooler.is_deleted == 0
         ).all()
+    
+    def get_all_series(self) -> List[str]:
+        """获取所有唯一的冷风机系列"""
+        result = self.session.query(Cooler.series).filter(
+            Cooler.is_deleted == 0,
+            Cooler.series.isnot(None),
+            Cooler.series != ''
+        ).distinct().all()
+        
+        return [item[0] for item in result]
 
 
 class CoolingCapacityRepository(BaseRepository[CoolingCapacity]):
