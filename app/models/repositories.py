@@ -163,7 +163,7 @@ class CoolerRepository(BaseRepository[Cooler]):
         ).first()
 
     def get_by_cooler_ids(self, cooler_id: List[str]) -> List[Cooler]:
-        """根据冷风机ID获取记录"""
+        """根据冷风机 ID 获取记录"""
         return self.session.query(Cooler).filter(
             Cooler.model.in_(cooler_id),
             Cooler.is_deleted == 0
@@ -178,6 +178,17 @@ class CoolerRepository(BaseRepository[Cooler]):
         ).distinct().all()
         
         return [item[0] for item in result]
+    
+    def update_pdf_path(self, cooler_id: int, pdf_path: str) -> Optional[Cooler]:
+        """更新冷风机的 PDF 文件路径"""
+        instance = self.get_by_id(cooler_id)
+        if not instance:
+            return None
+        
+        instance.pdf_path = pdf_path
+        self.session.commit()
+        self.session.refresh(instance)
+        return instance
 
 
 class CoolingCapacityRepository(BaseRepository[CoolingCapacity]):

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.models import get_db
@@ -33,17 +34,18 @@ def filter_coolers(
 #     refrigerant_supply_type: str,
 #     fan_distance: float,
 #     series: Optional[str] = None,
-@router.get("/cooler/filter", response_model=BaseResponse[dict])
+@router.get("/cooler/filter/{evaporating_temp}/{repo_temp}/{required_cooling_cap}/{refrigerant}/{refrigerant_supply_type}/{fan_distance}", response_model=BaseResponse[dict])
 def filter_coolers_get(
         evaporating_temp: float,
         repo_temp: float,
         required_cooling_cap: float,
         refrigerant: str,
         refrigerant_supply_type: str,
+        fan_distance: float,
         series: Optional[str] = None,
         db: Session = Depends(get_db)
 ):
-    """过滤冷风机（GET请求）"""
+    """过滤冷风机（GET 请求）"""
     try:
         filter_params = CoolerFilter(
             evaporating_temp=evaporating_temp,
@@ -51,7 +53,7 @@ def filter_coolers_get(
             required_cooling_cap=required_cooling_cap,
             refrigerant=refrigerant,
             refrigerant_supply_type=refrigerant_supply_type,
-            fan_distance=0,
+            fan_distance=fan_distance,
             series=series
         )
         result = CoolerService.filter_cooler(db, filter_params)
@@ -80,4 +82,51 @@ def get_cooler_series(
         )
     except Exception as e:
         logger.error(f"Error getting cooler series: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.post("/cooler/pdf", response_model=BaseResponse[dict])
+def upload_cooler_pdf(
+    cooler_id: int = Form(..., description="冷风机 ID"),
+    file: UploadFile = File(..., description="PDF 文件"),
+    db: Session = Depends(get_db)
+):
+    """上传冷风机 PDF 文件"""
+    try:
+        result = CoolerService.upload_pdf(db, cooler_id, file)
+        return BaseResponse(
+            message="PDF uploaded successfully",
+            data=result
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/cooler/{cooler_id}/pdf", response_class=StreamingResponse)
+def download_cooler_pdf(
+    cooler_id: int,
+    db: Session = Depends(get_db)
+):
+    """下载冷风机 PDF 文件"""
+    try:
+        file_path, filename = CoolerService.get_pdf_file(cooler_id, db)
+        
+        def iterfile():
+            with open(file_path, mode="rb") as file:
+                yield from file
+        
+        return StreamingResponse(
+            iterfile(),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except HTTPException:
+        raise
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="PDF file not found")
+    except Exception as e:
+        logger.error(f"Error downloading PDF: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
