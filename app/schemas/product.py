@@ -11,7 +11,7 @@ class CoolerFilter(BaseModel):
     required_cooling_cap: float = Field(None, description="需求冷量")
     refrigerant: Optional[str] = Field(Refrigerant.R404A.value, description="制冷剂")
     refrigerant_supply_type: Optional[str] = Field(RefrigerantSupplyType.DIRECT.value, description="制冷剂类型")
-    fan_distance: Optional[float] = Field(None, description="片距")
+    fin_spacing: Optional[str] = Field(None, description="片距（如：4.5、6.0、8.0）")
     series: Optional[str] = Field(None, description="冷风机系列")
 
     @model_validator(mode='before')
@@ -30,10 +30,11 @@ class CoolerFilter(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "evaporating_temp": 1,
-                "repo_temp": 100,
-                "required_cooling_cap": 1000,
-                "refrigerant": 1,
-                "fan_distance": 33
+                "evaporating_temp": -30,
+                "repo_temp": -25,
+                "required_cooling_cap": 150,
+                "refrigerant": "R404A",
+                "refrigerant_supply_type": "直膨",
+                "fan_distance": "4.5"
             }
         }

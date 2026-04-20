@@ -179,6 +179,22 @@ class CoolerRepository(BaseRepository[Cooler]):
         
         return [item[0] for item in result]
     
+    def get_all_fin_spacing(self) -> List[str]:
+        """获取所有唯一的翅片间距，按 fin_spacing_num 从小到大排序"""
+        result = self.session.query(Cooler.fin_spacing, Cooler.fin_spacing_num).filter(
+            Cooler.is_deleted == 0,
+            Cooler.fin_spacing.isnot(None),
+            Cooler.fin_spacing != ''
+        ).order_by(Cooler.fin_spacing_num.asc()).all()
+        
+        # 使用 dict 去重并保持顺序（Python 3.7+）
+        seen = dict()
+        for spacing, num in result:
+            if spacing not in seen:
+                seen[spacing] = num
+        
+        return list(seen.keys())
+    
     def update_pdf_path(self, cooler_id: int, pdf_path: str) -> Optional[Cooler]:
         """更新冷风机的 PDF 文件路径"""
         instance = self.get_by_id(cooler_id)

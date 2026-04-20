@@ -50,7 +50,6 @@ class CoolerResponse(CoolerBase):
     id: int
     cooling_capacity: float
     working_status: str
-    pdf_path: Optional[str] = Field(None, description="PDF 文件路径")
     is_deleted: int
 
     class Config:

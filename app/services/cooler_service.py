@@ -43,6 +43,8 @@ class CoolerService:
         allowed_cooler = []
         for cap in cooler_cap_dtos:
             delta = abs(cap.capacity - target_cap)
+            if delta > 10:
+                continue
             if cap.cooler_id in cooler_id_cap_map:
                 continue
             allowed_cooler.append((cap.cooler_id, delta))
@@ -55,7 +57,7 @@ class CoolerService:
             if cooler.model not in cooler_dic:
                 cooler_dic[cooler.model] = []
             cooler_dic[cooler.model].append(cooler)
-        res = get_data(target_ids, cooler_dic, filter_params.fan_distance, filter_params.series)
+        res = get_data(target_ids, cooler_dic, filter_params.fin_spacing, filter_params.series)
 
         # 计算总数
         total = len(res)
@@ -84,6 +86,17 @@ class CoolerService:
             return series_list
         except Exception as e:
             logger.error(f"Error getting all series: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
+    
+    @staticmethod
+    def get_all_fin_spacing(db: Session) -> List[str]:
+        """获取所有翅片间距，去重并按从小到大排序"""
+        try:
+            cooler_repo = CoolerRepository(db)
+            fin_spacing_list = cooler_repo.get_all_fin_spacing()
+            return fin_spacing_list
+        except Exception as e:
+            logger.error(f"Error getting all fin spacing: {str(e)}")
             raise HTTPException(status_code=500, detail="Internal server error")
     
     @staticmethod
@@ -168,7 +181,7 @@ class CoolerService:
             raise HTTPException(status_code=500, detail="Internal server error")
 
 
-def get_data(target_ids: list[str], cooler_dic: dict, fan_distance: float, series: str = None):
+def get_data(target_ids: list[str], cooler_dic: dict, fan_distance: str = None, series: str = None):
     res = []
     for target_id in target_ids:
 
@@ -176,11 +189,11 @@ def get_data(target_ids: list[str], cooler_dic: dict, fan_distance: float, serie
             continue
         coolers = cooler_dic[target_id]
         for cooler in coolers:
-            if fan_distance and cooler.fin_spacing_num != fan_distance:
+            if fan_distance and (not cooler.fin_spacing or cooler.fin_spacing != fan_distance):
                 continue
-            if series and cooler.series != series:
+            if series and (not cooler.series or cooler.series != series):
                 continue
-            if len(res) > 5:
+            if len(res) > 2:
                 return res
             res.append(cooler)
     return res

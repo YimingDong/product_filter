@@ -32,7 +32,7 @@ def filter_coolers(
 #     required_cooling_cap: float,
 #     refrigerant: str,
 #     refrigerant_supply_type: str,
-#     fan_distance: float,
+#     fan_distance: str,
 #     series: Optional[str] = None,
 @router.get("/cooler/filter/{evaporating_temp}/{repo_temp}/{required_cooling_cap}/{refrigerant}/{refrigerant_supply_type}/{fan_distance}", response_model=BaseResponse[dict])
 def filter_coolers_get(
@@ -41,7 +41,7 @@ def filter_coolers_get(
         required_cooling_cap: float,
         refrigerant: str,
         refrigerant_supply_type: str,
-        fan_distance: float,
+        fan_distance: str,
         series: Optional[str] = None,
         db: Session = Depends(get_db)
 ):
@@ -82,6 +82,25 @@ def get_cooler_series(
         )
     except Exception as e:
         logger.error(f"Error getting cooler series: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/cooler/fin-spacing", response_model=BaseResponse[dict])
+def get_cooler_fin_spacing(
+    db: Session = Depends(get_db)
+):
+    """获取所有冷风机翅片间距（去重，从小到大排序）"""
+    try:
+        fin_spacing_list = CoolerService.get_all_fin_spacing(db)
+        return BaseResponse(
+            message="Cooler fin spacing retrieved successfully",
+            data={
+                "fin_spacing": fin_spacing_list,
+                "total": len(fin_spacing_list)
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error getting cooler fin spacing: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
